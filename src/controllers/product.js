@@ -28,7 +28,8 @@ const {
   
       const newProduct = await product.create({
         ...data,
-        image: req.file.filename|| result.public_id,
+        image: req.file.filename,
+        // || result.public_id,
         idUser: req.user.id,
       });
   

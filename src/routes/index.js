@@ -21,7 +21,7 @@ const {
     // addTransactionCart,
     getTransactions,
     deleteTransaction,
-    // notification,
+    notification,
   } = require("../controllers/transaction");
   const { getProfile, updateProfile } = require("../controllers/profile");
   const {
@@ -59,6 +59,6 @@ router.post("/transaction", auth, addTransaction);
 // router.post("/transaction", auth, addTransactionCart);
 router.get("/transactions", auth, getTransactions);
 router.delete("/transaction/:id", auth, deleteTransaction);
-
+router.post("/notification", notification);
 
 module.exports = router;

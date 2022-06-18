@@ -91,7 +91,9 @@ const socketIo = (io) => {
           image: item.image ? process.env.PATH_FILE + item.image : null,
         }));
 
-        socket.emit("customer contacts", customerContacts);
+        socket.emit("customer contacts", 
+        customerContacts
+        );
       } catch (error) {
         console.log(err);
       }

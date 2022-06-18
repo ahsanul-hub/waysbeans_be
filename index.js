@@ -3,20 +3,20 @@ require("dotenv").config();
 const cors = require("cors");
 
 const http = require("http");
-// const { Server } = require("socket.io");
+const { Server } = require("socket.io");
 
 const router = require("./src/routes");
 
 const app = express();
 
 const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: process.env.CLIENT_URL || "http://localhost:3000",
-//   },
-// });
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+  },
+});
 
-// require("./src/socket")(io);
+require("./src/socket")(io);
 const port = 5000;
 
 app.use(express.json());

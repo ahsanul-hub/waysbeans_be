@@ -1,4 +1,4 @@
-const { user, transaction, product, profile, producttransaction } = require("../../models");
+const { user, transaction, product, profile, producttransaction, cart } = require("../../models");
 const midtransClient = require("midtrans-client");
 
 exports.addTransaction = async (req, res) => {
@@ -7,6 +7,7 @@ exports.addTransaction = async (req, res) => {
       idBuyer: req.user.id,
       price: req.body.price,
       qty: req.body.qty == null ? 1 : req.body.qty,
+      address: req.body.address,
       status: "pending",
     };
 
@@ -39,6 +40,7 @@ exports.addTransaction = async (req, res) => {
       await producttransaction.bulkCreate(transactionProducts);
     
 
+
     let snap = new midtransClient.Snap({
       // Set to true if you want Production Environment (accept real transaction).
       isProduction: false,
@@ -63,6 +65,13 @@ exports.addTransaction = async (req, res) => {
 
     const payment = await snap.createTransaction(parameter);
     // console.log(payment);
+
+    await cart.destroy({
+      where: {
+      idBuyer: req.user.id,
+        
+      },
+    });
 
     res.send({
       status: "pending",
@@ -176,18 +185,47 @@ const updateTransaction = async (status, transactionId) => {
 
 // Create function for handle product update stock/qty here ...
 const updateProduct = async (orderId) => {
-  const transactionData = await transaction.findOne({
-    where: {
-      id: orderId,
+//   const transactionData = await transaction.findOne({
+//     where: {
+//       id: orderId,
+//     },
+//   });
+//   const productData = await product.findOne({
+//     where: {
+//       id: transactionData.idProduct,
+//     },
+//   });
+//   const qty = productData.qty - transactionData.qty;
+//   await product.update({ qty }, { where: { id: productData.id } });
+
+
+let data = await transaction.findOne({
+  where: {
+    id: orderId,
+  },
+  attributes: {
+    exclude: ["createdAt", "updatedAt"],
+  },
+  include: {
+    model: product,
+    as: "products",
+    attributes: {
+      exclude: ["createdAt", "updatedAt"],
     },
-  });
-  const productData = await product.findOne({
-    where: {
-      id: transactionData.idProduct,
-    },
-  });
-  const qty = productData.qty - transactionData.qty;
-  await product.update({ qty }, { where: { id: productData.id } });
+  },
+});
+
+
+const dataUpdate= data.products.map(item =>{
+  return{
+    id: item.id,
+    qty: item.qty - item.producttransaction.qty
+  }
+})
+
+await product.bulkCreate(dataUpdate,{updateOnDuplicate:["qty"]})
+
+
 };
 
 exports.notification = async (req, res) => {
@@ -208,7 +246,7 @@ exports.notification = async (req, res) => {
       } else if (fraudStatus == "accept") {
         // TODO set transaction status on your database to 'success'
         // and response with 200 OK
-        // updateProduct(orderId);
+        updateProduct(orderId);
         updateTransaction("success", orderId);
         res.status(200);
       }
@@ -242,6 +280,12 @@ exports.deleteTransaction = async (req, res) => {
   try {
     const { id } = req.params;
 
+    await producttransaction.destroy({
+      where: {
+        idTransaction: id
+      },
+    });
+
     await transaction.destroy({
       where: {
         id,
@@ -251,6 +295,52 @@ exports.deleteTransaction = async (req, res) => {
     res.send({
       status: "success",
       message: `Delete category id: ${id} finished`,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+
+exports.updateProduct = async (req, res) => {
+  try {
+    // const { id } = req.body.id;
+
+   
+    let data = await transaction.findOne({
+      where: {
+        id: req.body.id,
+      },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+      include: {
+        model: product,
+        as: "products",
+        attributes: {
+          exclude: ["createdAt", "updatedAt"],
+        },
+      },
+    });
+
+    
+    const dataUpdate= data.products.map(item =>{
+      return{
+        id: item.id,
+        qty: item.qty - item.producttransaction.qty
+      }
+    })
+
+    const dataproduct = await product.bulkCreate(dataUpdate,{updateOnDuplicate:["qty"]})
+
+    
+    res.send({
+      status: "success...",
+      dataproduct,
     });
   } catch (error) {
     console.log(error);

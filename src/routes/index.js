@@ -12,7 +12,7 @@ const {
     addProduct,
     getAllProducts,
     getProduct,
-    updateProduct,
+    // updateProduct,
     deleteProduct,
   } = require("../controllers/product");
 
@@ -22,6 +22,7 @@ const {
     getTransactions,
     deleteTransaction,
     notification,
+    updateProduct
   } = require("../controllers/transaction");
   const { getProfile, updateProfile } = require("../controllers/profile");
   const {
@@ -44,7 +45,7 @@ router.get("/check-auth", auth, checkAuth);
 router.post("/product", auth, uploadFile("image"), addProduct);
 router.get("/products", getAllProducts);
 router.get("/product/:id", auth, getProduct);
-router.patch("/product/:id", auth, uploadFile("image"), updateProduct);
+// router.patch("/product/:id", auth, uploadFile("image"), updateProduct);
 router.delete("/product/:id", auth, deleteProduct);
 
 router.get("/profile", auth, getProfile);
@@ -60,5 +61,7 @@ router.post("/transaction", auth, addTransaction);
 router.get("/transactions", auth, getTransactions);
 router.delete("/transaction/:id", auth, deleteTransaction);
 router.post("/notification", notification);
+router.post("/update-product", updateProduct);
+
 
 module.exports = router;

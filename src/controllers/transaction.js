@@ -103,7 +103,7 @@ core.apiConfig.set({
 });
 
 
-exports.getTransactions = async (req, res) => {
+exports.getTransaction = async (req, res) => {
   try {
     const idBuyer = req.user.id;
     let data = await transaction.findAll({
@@ -116,7 +116,7 @@ exports.getTransactions = async (req, res) => {
       include: [
         {
           model: product,
-          as: "product",
+          as: "products",
           attributes: {
             exclude: [
               "createdAt",
@@ -128,20 +128,20 @@ exports.getTransactions = async (req, res) => {
             ],
           },
         },
-        {
-          model: user,
-          as: "buyer",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "password", "status"],
-          },
-        },
-        {
-          model: user,
-          as: "seller",
-          attributes: {
-            exclude: ["createdAt", "updatedAt", "password", "status"],
-          },
-        },
+        // {
+        //   model: user,
+        //   as: "buyer",
+        //   attributes: {
+        //     exclude: ["createdAt", "updatedAt", "password", "status"],
+        //   },
+        // },
+        // {
+        //   model: user,
+        //   as: "seller",
+        //   attributes: {
+        //     exclude: ["createdAt", "updatedAt", "password", "status"],
+        //   },
+        // },
       ],
     });
 
@@ -150,10 +150,6 @@ exports.getTransactions = async (req, res) => {
     data = data.map((item) => {
       return {
         ...item,
-        product: {
-          ...item.product,
-          image: process.env.PATH_FILE + item?.product?.image,
-        },
       };
     });
 
@@ -341,6 +337,70 @@ exports.updateProduct = async (req, res) => {
     res.send({
       status: "success...",
       dataproduct,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+
+exports.getAllTransactions = async (req, res) => {
+  try {
+    let data = await transaction.findAll({
+      // where: {
+      //   id: orderId,
+      // },
+      attributes: {
+        exclude: ["createdAt", "updatedAt"],
+      },
+      include: [
+        {model: product,
+        as: "products",
+        attributes: {
+          exclude: ["createdAt", "updatedAt", "producttransaction"],
+        }},
+        
+                  {  model: user,
+                    as: "buyer",
+                    attributes: {
+                      exclude: ["createdAt", "updatedAt", "password", "status","id","email"],
+                    }},
+                  
+                  ],
+    });
+    res.send({
+      status: "success...",
+      data
+    });
+  } catch (error) {
+    console.log(error);
+    res.send({
+      status: "failed",
+      message: "Server Error",
+    });
+  }
+};
+
+exports.updateTrans = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await transaction.update(
+      {
+        status:req.body.status
+      },
+      {
+        where: {
+          id,
+        },
+      })
+
+    res.send({
+      status: "success...",
+      data:data
     });
   } catch (error) {
     console.log(error);

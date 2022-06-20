@@ -17,12 +17,13 @@ const {
   } = require("../controllers/product");
 
   const {
-    addTransaction,
-    // addTransactionCart,
-    getTransactions,
+    addTransaction, 
+    getTransaction,
+    getAllTransactions,
     deleteTransaction,
     notification,
-    updateProduct
+    updateProduct,
+    updateTrans
   } = require("../controllers/transaction");
   const { getProfile, updateProfile } = require("../controllers/profile");
   const {
@@ -58,10 +59,13 @@ router.delete("/cart/:id", auth, deleteCart);
 
 router.post("/transaction", auth, addTransaction);
 // router.post("/transaction", auth, addTransactionCart);
-router.get("/transactions", auth, getTransactions);
+router.get("/transaction", auth, getTransaction);
+router.get("/transactions",auth, getAllTransactions);
 router.delete("/transaction/:id", auth, deleteTransaction);
 router.post("/notification", notification);
 router.post("/update-product", updateProduct);
+router.patch("/transaction/:id", auth, updateTrans);
+
 
 
 module.exports = router;

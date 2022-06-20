@@ -302,50 +302,50 @@ exports.deleteTransaction = async (req, res) => {
 };
 
 
-exports.updateProduct = async (req, res) => {
-  try {
-    // const { id } = req.body.id;
+// exports.updateProduct = async (req, res) => {
+//   try {
+//     // const { id } = req.body.id;
 
    
-    let data = await transaction.findOne({
-      where: {
-        id: req.body.id,
-      },
-      attributes: {
-        exclude: ["createdAt", "updatedAt"],
-      },
-      include: {
-        model: product,
-        as: "products",
-        attributes: {
-          exclude: ["createdAt", "updatedAt"],
-        },
-      },
-    });
+//     let data = await transaction.findOne({
+//       where: {
+//         id: req.body.id,
+//       },
+//       attributes: {
+//         exclude: ["createdAt", "updatedAt"],
+//       },
+//       include: {
+//         model: product,
+//         as: "products",
+//         attributes: {
+//           exclude: ["createdAt", "updatedAt"],
+//         },
+//       },
+//     });
 
     
-    const dataUpdate= data.products.map(item =>{
-      return{
-        id: item.id,
-        qty: item.qty - item.producttransaction.qty
-      }
-    })
+//     const dataUpdate= data.products.map(item =>{
+//       return{
+//         id: item.id,
+//         qty: item.qty - item.producttransaction.qty
+//       }
+//     })
 
-    const dataproduct = await product.bulkCreate(dataUpdate,{updateOnDuplicate:["qty"]})
+//     const dataproduct = await product.bulkCreate(dataUpdate,{updateOnDuplicate:["qty"]})
 
     
-    res.send({
-      status: "success...",
-      dataproduct,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      status: "failed",
-      message: "Server Error",
-    });
-  }
-};
+//     res.send({
+//       status: "success...",
+//       dataproduct,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).send({
+//       status: "failed",
+//       message: "Server Error",
+//     });
+//   }
+// };
 
 
 exports.getAllTransactions = async (req, res) => {

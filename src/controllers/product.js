@@ -8,7 +8,7 @@ const {
     profile,
   } = require("../../models");
   
-//   const cloudinary = require("../utils/cloudinary");
+  const cloudinary = require("../utils/cloudinary");
   
   exports.addProduct = async (req, res) => {
     try {
@@ -17,19 +17,18 @@ const {
       //     status: "failed",
       //     message: "Only admin can add Product!"
       //   })
-    //   const result = await cloudinary.uploader.upload(req.file.path, {
-    //     folder: "waysbeans",
-    //     use_filename: true,
-    //     unique_filename: false,
-    //   });
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "waysbeans",
+        use_filename: true,
+        unique_filename: false,
+      });
   
       const { ...data } = req.body;
     
   
       const newProduct = await product.create({
         ...data,
-        image: req.file.filename,
-        // || result.public_id,
+        image: result.public_id || req.file.filename,
         idUser: req.user.id,
       });
   
